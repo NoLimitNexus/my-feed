@@ -41,7 +41,8 @@
   article { background: var(--card); border: 1px solid var(--line); border-radius: 12px; margin: 0 0 10px; overflow: hidden; }
   article a { display: block; color: inherit; text-decoration: none; }
   article a:active { background: #1d222b; }
-  .thumb { display: block; width: 100%; height: 180px; object-fit: cover; background: #0c0e12; border-bottom: 1px solid var(--line); }
+  /* light backing so see-through pictures (graphs, screenshots) stay readable */
+  .thumb { display: block; width: 100%; height: 180px; object-fit: cover; background: #dfe3ea; border-bottom: 1px solid var(--line); }
   .body { padding: 11px 14px 13px; }
   .meta { font-size: 13px; color: var(--muted); }
   .src { color: var(--accent); font-weight: 600; }
@@ -131,6 +132,28 @@
     }));
   }
 
+  // Pictures load when their card comes near the screen and appear only once loaded,
+  // so there are no empty boxes; badges and other small images are left out.
+  function addThumb(a) {
+    const pic = new Image();
+    pic.className = 'thumb';
+    pic.alt = '';
+    pic.decoding = 'async';
+    pic.referrerPolicy = 'no-referrer';
+    pic.onload = () => {
+      const w = pic.naturalWidth, h = pic.naturalHeight;
+      if (w >= 200 && h >= 80 && w / h <= 3.5) a.prepend(pic);
+    };
+    pic.src = a.dataset.img;
+  }
+  const nearby = 'IntersectionObserver' in window ? new IntersectionObserver((entries) => {
+    for (const e of entries) {
+      if (!e.isIntersecting) continue;
+      nearby.unobserve(e.target);
+      addThumb(e.target);
+    }
+  }, { rootMargin: '800px 0px' }) : null;
+
   function card(it) {
     const art = el('article');
     const a = el('a');
@@ -139,14 +162,8 @@
     a.rel = 'noopener';
     const img = safeUrl(it.image);
     if (img) {
-      const pic = el('img', 'thumb');
-      pic.loading = 'lazy';
-      pic.decoding = 'async';
-      pic.alt = '';
-      pic.referrerPolicy = 'no-referrer';
-      pic.onerror = () => pic.remove();
-      pic.src = img;
-      a.append(pic);
+      a.dataset.img = img;
+      if (nearby) nearby.observe(a); else addThumb(a);
     }
     const body = el('div', 'body');
     const meta = el('div', 'meta');
@@ -160,6 +177,7 @@
   }
 
   function renderList() {
+    if (nearby) nearby.disconnect();
     const items = data.items.filter((it) => topic === 'All' || it.topic === topic);
     if (!items.length) {
       list.replaceChildren(el('p', 'note', 'Nothing here yet.'));
