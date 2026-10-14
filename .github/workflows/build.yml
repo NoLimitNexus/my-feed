@@ -1,0 +1,58 @@
+name: Build the feed
+
+# Every hour, on every change pushed to main (for example an edited sources.json), and by hand.
+on:
+  schedule:
+    - cron: '7 * * * *'
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: node build.mjs
+        env:
+          SITE_URL: https://nolimitnexus.github.io/my-feed
+      # GitHub switches off hourly schedules in a public repo after 60 days without a commit.
+      # One small commit a week keeps the feed updating.
+      - name: Weekly heartbeat
+        run: |
+          week=$(date -u +%G-W%V)
+          if [ "$(cat heartbeat.txt 2>/dev/null)" != "$week" ]; then
+            echo "$week" > heartbeat.txt
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add heartbeat.txt
+            git commit -m "Heartbeat $week"
+            git push || echo "Heartbeat push skipped; the next run tries again."
+          fi
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5

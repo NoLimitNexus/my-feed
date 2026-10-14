@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>My Feed</title>
+<meta name="description" content="My own feed: the things I follow, newest first. No algorithm.">
+<meta name="theme-color" content="#101318">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+  :root {
+    --bg: #101318; --card: #171b22; --line: #252b35; --chip: #1c2129;
+    --text: #e7e9ee; --soft: #c3c8d1; --muted: #8c95a3; --accent: #f2994a; --bad: #e48a8a;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--text); }
+  body { font: 16px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; -webkit-text-size-adjust: 100%; }
+  header {
+    position: sticky; top: 0; z-index: 2; background: rgba(16, 19, 24, .95);
+    -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line);
+    padding: max(12px, env(safe-area-inset-top)) 16px 10px;
+  }
+  .bar, .chips, main, footer { max-width: 720px; margin-left: auto; margin-right: auto; }
+  .bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  h1 { font-size: 20px; margin: 0; }
+  #refresh {
+    border: 0; background: none; color: var(--muted); font: inherit; font-size: 13px; padding: 6px 0 6px 10px; cursor: pointer;
+  }
+  .chips { display: flex; gap: 8px; overflow-x: auto; margin-top: 10px; scrollbar-width: none; }
+  .chips::-webkit-scrollbar { display: none; }
+  .chip {
+    flex: none; border: 1px solid var(--line); background: var(--chip); color: var(--soft);
+    border-radius: 999px; padding: 6px 14px; font: inherit; font-size: 14px; cursor: pointer;
+  }
+  .chip[aria-pressed="true"] { color: var(--bg); background: var(--accent); border-color: var(--accent); font-weight: 600; }
+  main { padding: 0 16px 8px; }
+  h2 { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 22px 0 8px; font-weight: 600; }
+  article { background: var(--card); border: 1px solid var(--line); border-radius: 12px; margin: 0 0 10px; overflow: hidden; }
+  article a { display: block; color: inherit; text-decoration: none; }
+  article a:active { background: #1d222b; }
+  .thumb { display: block; width: 100%; height: 180px; object-fit: cover; background: #0c0e12; border-bottom: 1px solid var(--line); }
+  .body { padding: 11px 14px 13px; }
+  .meta { font-size: 13px; color: var(--muted); }
+  .src { color: var(--accent); font-weight: 600; }
+  .title { font-size: 17px; font-weight: 600; margin-top: 3px; overflow-wrap: anywhere; }
+  .sum {
+    margin: 5px 0 0; color: var(--soft); font-size: 15px; overflow-wrap: anywhere;
+    display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .note { color: var(--muted); text-align: center; padding: 40px 0; }
+  footer { color: var(--muted); font-size: 14px; padding: 8px 16px max(40px, env(safe-area-inset-bottom)); }
+  footer h2 { margin-top: 26px; }
+  footer ul { list-style: none; padding: 0; margin: 0; }
+  footer li { padding: 3px 0; }
+  footer a { color: var(--accent); }
+  .bad { color: var(--bad); }
+  @media (min-width: 700px) { .thumb { height: 240px; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="bar">
+    <h1>My Feed</h1>
+    <button id="refresh" type="button" title="Load the newest items">Loading…</button>
+  </div>
+  <nav class="chips" id="chips" aria-label="Topics"></nav>
+</header>
+<main id="list"><p class="note">Loading…</p></main>
+<footer>
+  <h2>Sources</h2>
+  <ul id="sources"></ul>
+  <p>
+    <a href="https://github.com/NoLimitNexus/my-feed/edit/main/sources.json">Add or remove a source</a>
+    (the feed rebuilds a minute after you save) ·
+    <a href="feeds.opml" download>OPML file</a> for any RSS reader app
+  </p>
+</footer>
+<script>
+(() => {
+  const list = document.getElementById('list');
+  const chips = document.getElementById('chips');
+  const sourcesEl = document.getElementById('sources');
+  const refresh = document.getElementById('refresh');
+  let data = null;
+  let loadedAt = 0;
+  let topic = 'All';
+  try { topic = localStorage.getItem('myfeed.topic') || 'All'; } catch {}
+
+  const el = (tag, cls, text) => {
+    const n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text != null) n.textContent = text;
+    return n;
+  };
+  const safeUrl = (u) => (/^https?:\/\//i.test(u || '') ? u : '');
+
+  function ago(iso) {
+    const mins = Math.max(0, Math.round((Date.now() - new Date(iso)) / 60000));
+    if (mins < 1) return 'just now';
+    if (mins < 60) return `${mins} min ago`;
+    const h = Math.round(mins / 60);
+    return h < 24 ? `${h} h ago` : `${Math.round(h / 24)} d ago`;
+  }
+
+  function dayLabel(d) {
+    const start = (x) => new Date(x.getFullYear(), x.getMonth(), x.getDate()).getTime();
+    const diff = Math.round((start(new Date()) - start(d)) / 86400000);
+    if (diff <= 0) return 'Today';
+    if (diff === 1) return 'Yesterday';
+    return d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+  }
+
+  function renderChips() {
+    const topics = ['All', ...new Set(data.sources.map((s) => s.topic))];
+    if (!topics.includes(topic)) topic = 'All';
+    chips.replaceChildren(...topics.map((t) => {
+      const b = el('button', 'chip', t);
+      b.type = 'button';
+      b.setAttribute('aria-pressed', String(t === topic));
+      b.onclick = () => {
+        topic = t;
+        try { localStorage.setItem('myfeed.topic', t); } catch {}
+        renderChips();
+        renderList();
+        window.scrollTo(0, 0);
+      };
+      return b;
+    }));
+  }
+
+  function card(it) {
+    const art = el('article');
+    const a = el('a');
+    a.href = safeUrl(it.link) || '#';
+    a.target = '_blank';
+    a.rel = 'noopener';
+    const img = safeUrl(it.image);
+    if (img) {
+      const pic = el('img', 'thumb');
+      pic.loading = 'lazy';
+      pic.decoding = 'async';
+      pic.alt = '';
+      pic.referrerPolicy = 'no-referrer';
+      pic.onerror = () => pic.remove();
+      pic.src = img;
+      a.append(pic);
+    }
+    const body = el('div', 'body');
+    const meta = el('div', 'meta');
+    const when = new Date(it.date);
+    meta.append(el('span', 'src', it.source), ` · ${when.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}`);
+    body.append(meta, el('div', 'title', it.title));
+    if (it.summary) body.append(el('p', 'sum', it.summary));
+    a.append(body);
+    art.append(a);
+    return art;
+  }
+
+  function renderList() {
+    const items = data.items.filter((it) => topic === 'All' || it.topic === topic);
+    if (!items.length) {
+      list.replaceChildren(el('p', 'note', 'Nothing here yet.'));
+      return;
+    }
+    const out = [];
+    let day = '';
+    for (const it of items) {
+      const label = dayLabel(new Date(it.date));
+      if (label !== day) { out.push(el('h2', null, label)); day = label; }
+      out.push(card(it));
+    }
+    list.replaceChildren(...out);
+  }
+
+  function renderSources() {
+    sourcesEl.replaceChildren(...data.sources.map((s) => {
+      const li = el('li');
+      const a = el('a', null, s.name);
+      a.href = safeUrl(s.url);
+      li.append(a, ` · ${s.topic} · `);
+      li.append(s.ok ? `${s.count} items`
+        : el('span', 'bad', `could not be reached on the last update${s.count ? `, showing its last ${s.count} items` : ''}`));
+      return li;
+    }));
+  }
+
+  async function load() {
+    refresh.textContent = 'Loading…';
+    try {
+      const res = await fetch(`data/items.json?t=${Date.now()}`, { cache: 'no-store' });
+      if (!res.ok) throw new Error(res.status);
+      data = await res.json();
+      loadedAt = Date.now();
+      renderChips();
+      renderList();
+      renderSources();
+      refresh.textContent = `Updated ${ago(data.builtAt)}`;
+    } catch {
+      if (!data) list.replaceChildren(el('p', 'note', 'Could not load the feed. Tap Retry at the top.'));
+      refresh.textContent = 'Retry';
+    }
+  }
+
+  refresh.onclick = load;
+  // Coming back to the page (or the home-screen app) after a while picks up the newest items.
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && Date.now() - loadedAt > 10 * 60000) load();
+  });
+  load();
+})();
+</script>
+</body>
+</html>

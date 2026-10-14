@@ -1,0 +1,8 @@
+[
+  { "name": "Three.js releases", "topic": "Three.js", "url": "https://github.com/mrdoob/three.js/releases.atom" },
+  { "name": "Three.js showcase", "topic": "Three.js", "url": "https://discourse.threejs.org/c/showcase/7.rss" },
+  { "name": "Three.js resources", "topic": "Three.js", "url": "https://discourse.threejs.org/c/resources/8.rss" },
+  { "name": "Trending on GitHub", "topic": "GitHub", "url": "https://mshibanami.github.io/GitHubTrendingRSS/daily/all.xml" },
+  { "name": "Trending JavaScript", "topic": "GitHub", "url": "https://mshibanami.github.io/GitHubTrendingRSS/daily/javascript.xml" },
+  { "name": "GitHub blog", "topic": "GitHub", "url": "https://github.blog/feed/" }
+]
