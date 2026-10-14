@@ -4,92 +4,154 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>My Feed</title>
-<meta name="description" content="My own feed: the things I follow, newest first. No algorithm.">
+<meta name="description" content="My own feed: the things I pick, mixed the way I set it. No algorithm.">
 <meta name="theme-color" content="#101318">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icon-192.png">
 <style>
   :root {
-    --bg: #101318; --card: #171b22; --line: #252b35; --chip: #1c2129;
+    --bg: #101318; --card: #171b22; --line: #252b35; --chip: #1c2129; --press: #1d222b;
     --text: #e7e9ee; --soft: #c3c8d1; --muted: #8c95a3; --accent: #f2994a; --bad: #e48a8a;
     color-scheme: dark;
   }
   * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
   html, body { margin: 0; background: var(--bg); color: var(--text); }
   body { font: 16px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; -webkit-text-size-adjust: 100%; }
+  button { font: inherit; color: inherit; }
   header {
-    position: sticky; top: 0; z-index: 2; background: rgba(16, 19, 24, .95);
+    position: sticky; top: 0; z-index: 5; background: rgba(16, 19, 24, .95);
     -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line);
-    padding: max(12px, env(safe-area-inset-top)) 16px 10px;
+    padding: max(10px, env(safe-area-inset-top)) 16px 10px;
   }
-  .bar, .chips, main, footer { max-width: 720px; margin-left: auto; margin-right: auto; }
-  .bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-  h1 { font-size: 20px; margin: 0; }
-  #refresh {
-    border: 0; background: none; color: var(--muted); font: inherit; font-size: 13px; padding: 6px 0 6px 10px; cursor: pointer;
-  }
+  .bar, .chips, main { max-width: 720px; margin-left: auto; margin-right: auto; }
+  .bar { display: flex; align-items: center; gap: 10px; }
+  h1 { font-size: 19px; margin: 0; white-space: nowrap; flex: 1; }
+  .seg { display: flex; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; flex: none; }
+  .seg button { border: 0; background: var(--chip); color: var(--soft); font-size: 13px; padding: 5px 10px; cursor: pointer; }
+  .seg button + button { border-left: 1px solid var(--line); }
+  .seg button[aria-pressed="true"] { background: var(--accent); color: var(--bg); font-weight: 600; }
+  .textbtn { border: 0; background: none; color: var(--accent); font-size: 14px; font-weight: 600; padding: 6px 0 6px 4px; cursor: pointer; }
   .chips { display: flex; gap: 8px; overflow-x: auto; margin-top: 10px; scrollbar-width: none; }
   .chips::-webkit-scrollbar { display: none; }
   .chip {
     flex: none; border: 1px solid var(--line); background: var(--chip); color: var(--soft);
-    border-radius: 999px; padding: 6px 14px; font: inherit; font-size: 14px; cursor: pointer;
+    border-radius: 999px; padding: 6px 14px; font-size: 14px; cursor: pointer;
   }
   .chip[aria-pressed="true"] { color: var(--bg); background: var(--accent); border-color: var(--accent); font-weight: 600; }
-  main { padding: 0 16px 8px; }
+  main { padding: 6px 16px 40px; }
   h2 { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 22px 0 8px; font-weight: 600; }
-  article { background: var(--card); border: 1px solid var(--line); border-radius: 12px; margin: 0 0 10px; overflow: hidden; }
-  article a { display: block; color: inherit; text-decoration: none; }
-  article a:active { background: #1d222b; }
-  /* light backing so see-through pictures (graphs, screenshots) stay readable */
-  .thumb { display: block; width: 100%; height: 180px; object-fit: cover; background: #dfe3ea; border-bottom: 1px solid var(--line); }
-  .body { padding: 11px 14px 13px; }
-  .meta { font-size: 13px; color: var(--muted); }
-  .src { color: var(--accent); font-weight: 600; }
-  .title { font-size: 17px; font-weight: 600; margin-top: 3px; overflow-wrap: anywhere; }
-  .sum {
-    margin: 5px 0 0; color: var(--soft); font-size: 15px; overflow-wrap: anywhere;
-    display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+
+  article {
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px; margin: 10px 0; overflow: hidden;
+    -webkit-touch-callout: none; -webkit-user-select: none; user-select: none;
   }
-  .note { color: var(--muted); text-align: center; padding: 40px 0; }
-  footer { color: var(--muted); font-size: 14px; padding: 8px 16px max(40px, env(safe-area-inset-bottom)); }
-  footer h2 { margin-top: 26px; }
-  footer ul { list-style: none; padding: 0; margin: 0; }
-  footer li { padding: 3px 0; }
-  footer a { color: var(--accent); }
-  .bad { color: var(--bad); }
-  @media (min-width: 700px) { .thumb { height: 240px; } }
+  article a { display: block; color: inherit; text-decoration: none; -webkit-touch-callout: none; }
+  article a:active { background: var(--press); }
+  .body { padding: 11px 14px 13px; }
+  .meta { font-size: 13px; color: var(--muted); overflow-wrap: anywhere; }
+  .src { color: var(--accent); font-weight: 600; }
+  .tag { display: inline-block; font-size: 11px; color: var(--soft); border: 1px solid var(--line); border-radius: 999px; padding: 0 7px; margin-left: 4px; vertical-align: 1px; }
+  .title { font-size: 17px; font-weight: 600; margin-top: 3px; overflow-wrap: anywhere; }
+  .text { margin: 5px 0 0; color: var(--soft); font-size: 15px; overflow-wrap: anywhere; display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; -webkit-line-clamp: 3; }
+  .look-post .text { color: var(--text); white-space: pre-line; -webkit-line-clamp: 10; }
+  .look-video .text, .look-picture .text { -webkit-line-clamp: 2; }
+  /* light backing so see-through pictures (graphs, screenshots) stay readable */
+  .banner { display: block; width: 100%; height: 180px; object-fit: cover; background: #dfe3ea; border-bottom: 1px solid var(--line); }
+  .pic { display: block; width: 100%; height: auto; max-height: 75vh; object-fit: contain; background: #0c0e12; }
+
+  .player { position: relative; width: 100%; aspect-ratio: 16 / 9; background: #000; cursor: pointer; overflow: hidden; }
+  .player.tall { width: auto; height: min(75vh, 600px); margin: 0 auto; }
+  .player .poster { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .player iframe, .player video { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: #000; }
+  .play {
+    position: absolute; left: 50%; top: 50%; width: 60px; height: 60px; margin: -30px 0 0 -30px; border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, .85); background: rgba(0, 0, 0, .55); pointer-events: none;
+  }
+  .play::before {
+    content: ""; position: absolute; left: 23px; top: 17px;
+    border-left: 20px solid #fff; border-top: 12px solid transparent; border-bottom: 12px solid transparent;
+  }
+
+  .notice { border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: 10px; padding: 12px 14px; margin: 18px 0 8px; color: var(--soft); font-size: 15px; }
+  .notice b { color: var(--text); display: block; margin-bottom: 2px; }
+  .notice button { margin-top: 10px; }
+  .btn { border: 1px solid var(--line); background: var(--chip); color: var(--text); border-radius: 999px; padding: 7px 14px; font-size: 14px; cursor: pointer; }
+  .empty { color: var(--muted); text-align: center; padding: 40px 0; }
+
+  .sheet { position: fixed; inset: 0; z-index: 20; }
+  .sheet-back { position: absolute; inset: 0; background: rgba(0, 0, 0, .55); }
+  .sheet-panel {
+    position: absolute; left: 0; right: 0; bottom: 0; max-width: 560px; margin: 0 auto; background: var(--card);
+    border: 1px solid var(--line); border-radius: 16px 16px 0 0; padding: 14px 8px max(14px, env(safe-area-inset-bottom));
+  }
+  .sheet-head { padding: 2px 12px 10px; border-bottom: 1px solid var(--line); margin-bottom: 6px; }
+  .sheet-head .title { font-size: 15px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .sheet-panel > button { display: block; width: 100%; text-align: left; border: 0; background: none; padding: 13px 12px; font-size: 16px; border-radius: 10px; cursor: pointer; }
+  .sheet-panel > button:active { background: var(--press); }
+  .sheet-panel > button.quiet { color: var(--muted); }
+
+  .tune { position: fixed; inset: 0; z-index: 15; background: var(--bg); overflow-y: auto; }
+  .tune-head { position: sticky; top: 0; background: rgba(16, 19, 24, .97); border-bottom: 1px solid var(--line); padding: max(12px, env(safe-area-inset-top)) 16px 12px; z-index: 1; }
+  .tune-head .bar h1 { font-size: 19px; }
+  .tune-body { max-width: 720px; margin: 0 auto; padding: 4px 16px 60px; }
+  .tune-body > p { color: var(--muted); font-size: 14px; margin: 6px 0 0; }
+  .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+  .row .name { font-weight: 600; }
+  .row .about { color: var(--muted); font-size: 13px; }
+  .row .about .bad { color: var(--bad); }
+  .row .seg button { font-size: 12px; padding: 5px 8px; }
+  @media (max-width: 420px) {
+    .row { flex-direction: column; align-items: stretch; gap: 8px; }
+    .row .seg { align-self: flex-start; }
+  }
+  .tune-body a { color: var(--accent); }
+
+  .toast {
+    position: fixed; left: 50%; bottom: max(18px, env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 30;
+    background: #262c36; color: var(--text); border: 1px solid #333b47; border-radius: 12px; padding: 10px 14px; font-size: 14px;
+    display: flex; gap: 14px; align-items: center; max-width: calc(100% - 32px); box-shadow: 0 6px 24px rgba(0, 0, 0, .4);
+  }
+  .toast button { border: 0; background: none; color: var(--accent); font-weight: 600; cursor: pointer; padding: 0; }
+  @media (min-width: 700px) { .banner { height: 240px; } }
 </style>
 </head>
 <body>
 <header>
   <div class="bar">
     <h1>My Feed</h1>
-    <button id="refresh" type="button" title="Load the newest items">Loading…</button>
+    <div class="seg" id="modes" role="group" aria-label="What to show"></div>
+    <button class="textbtn" id="tuneBtn" type="button">Tune</button>
   </div>
-  <nav class="chips" id="chips" aria-label="Topics"></nav>
+  <nav class="chips" id="chips" aria-label="Views"></nav>
 </header>
-<main id="list"><p class="note">Loading…</p></main>
-<footer>
-  <h2>Sources</h2>
-  <ul id="sources"></ul>
-  <p>
-    <a href="https://github.com/NoLimitNexus/my-feed/edit/main/sources.json">Add or remove a source</a>
-    (the feed rebuilds a minute after you save) ·
-    <a href="feeds.opml" download>OPML file</a> for any RSS reader app
-  </p>
-</footer>
+<main id="list"><p class="empty">Loading…</p></main>
+
+<div class="sheet" id="sheet" hidden>
+  <div class="sheet-back"></div>
+  <div class="sheet-panel" role="dialog" aria-modal="true" aria-label="Options"></div>
+</div>
+
+<div class="tune" id="tune" hidden>
+  <div class="tune-head"><div class="bar"><h1>Tune your feed</h1><button class="textbtn" id="tuneDone" type="button">Done</button></div></div>
+  <div class="tune-body" id="tuneBody"></div>
+</div>
+
+<div class="toast" id="toast" hidden></div>
+
 <script>
 (() => {
-  const list = document.getElementById('list');
-  const chips = document.getElementById('chips');
-  const sourcesEl = document.getElementById('sources');
-  const refresh = document.getElementById('refresh');
-  let data = null;
-  let loadedAt = 0;
-  let topic = 'All';
-  try { topic = localStorage.getItem('myfeed.topic') || 'All'; } catch {}
+  const HLS_JS = 'https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.20/hls.min.js';
+  const CAT_LEVELS = ['Off', 'A little', 'Normal', 'Lots'];
+  const CAT_WEIGHT = [0, 1, 2, 4];
+  const SRC_LEVELS = ['off', 'less', 'normal', 'more'];
+  const SRC_WEIGHT = { off: 0, less: 0.5, normal: 1, more: 2 };
+  const MODES = [['all', 'All'], ['video', 'Videos'], ['picture', 'Pictures']];
+  const PAGE = 30;
 
+  const $ = (id) => document.getElementById(id);
+  const list = $('list');
   const el = (tag, cls, text) => {
     const n = document.createElement(tag);
     if (cls) n.className = cls;
@@ -97,6 +159,30 @@
     return n;
   };
   const safeUrl = (u) => (/^https?:\/\//i.test(u || '') ? u : '');
+  const read = (key, fallback) => { try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; } };
+  const write = (key, value) => { try { localStorage.setItem(key, JSON.stringify(value)); } catch {} };
+
+  // Everything the person sets lives on this device: dials, sources, mode, saved posts, what was seen.
+  let prefs = { cat: {}, src: {}, mode: 'all', view: 'mix', outside: true, saved: [], ...read('myfeed.v2', {}) };
+  const savePrefs = () => write('myfeed.v2', prefs);
+  const today = () => Math.floor(Date.now() / 86400000);
+  const seen = read('myfeed.seen', {});
+  for (const [id, day] of Object.entries(seen)) if (today() - day > 60) delete seen[id];
+
+  let data = null;
+  let loadedAt = 0;
+  let catById = {};
+  let srcById = {};
+
+  const catDial = (catId) => prefs.cat[catId] ?? catById[catId]?.dial ?? 0;
+  // A source's level: 'off' | 'less' | 'normal' | 'more', or null when it is not picked yet.
+  const srcLevel = (s) => prefs.src[s.id] ?? (s.on ? 'normal' : null);
+  const inPicks = (s) => !!s && catDial(s.category) > 0 && !!srcLevel(s) && srcLevel(s) !== 'off';
+  // Not picked yet (and not turned off by him): may show below his picks, marked.
+  const canDiscover = (s) => !!s && catDial(s.category) > 0 && srcLevel(s) === null;
+  const isSaved = (id) => prefs.saved.some((x) => x.id === id);
+  const kindOf = (it) => (it.video ? 'video' : it.image ? 'picture' : 'text');
+  const modeOk = (it) => prefs.mode === 'all' || kindOf(it) === prefs.mode;
 
   function ago(iso) {
     const mins = Math.max(0, Math.round((Date.now() - new Date(iso)) / 60000));
@@ -114,118 +200,621 @@
     return d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
   }
 
-  function renderChips() {
-    const topics = ['All', ...new Set(data.sources.map((s) => s.topic))];
-    if (!topics.includes(topic)) topic = 'All';
-    chips.replaceChildren(...topics.map((t) => {
-      const b = el('button', 'chip', t);
-      b.type = 'button';
-      b.setAttribute('aria-pressed', String(t === topic));
-      b.onclick = () => {
-        topic = t;
-        try { localStorage.setItem('myfeed.topic', t); } catch {}
-        renderChips();
-        renderList();
-        window.scrollTo(0, 0);
-      };
-      return b;
-    }));
+  // ---------- the mix: his dials decide the share of each category, then of each source in it ----------
+  function pickWeighted(entries) {   // smooth weighted round robin: shares follow the weights, evenly spread
+    let total = 0;
+    let best = null;
+    for (const e of entries) {
+      e.cur += e.w;
+      total += e.w;
+      if (!best || e.cur > best.cur) best = e;
+    }
+    best.cur -= total;
+    return best;
   }
 
-  // Pictures load when their card comes near the screen and appear only once loaded,
-  // so there are no empty boxes; badges and other small images are left out.
-  function addThumb(a) {
+  function mix(items, sourceWeight) {
+    const cats = new Map();
+    for (const it of items) {
+      const s = srcById[it.source];
+      if (!cats.has(s.category)) cats.set(s.category, new Map());
+      const bySrc = cats.get(s.category);
+      if (!bySrc.has(s.id)) bySrc.set(s.id, []);
+      bySrc.get(s.id).push(it);
+    }
+    const groups = [...cats].map(([catId, bySrc]) => ({
+      w: CAT_WEIGHT[catDial(catId)] || 1, cur: 0,
+      srcs: [...bySrc].map(([id, q]) => ({ w: sourceWeight(srcById[id]), cur: 0, q: q.sort((a, b) => b.date.localeCompare(a.date)) })),
+    }));
+    const out = [];
+    for (;;) {
+      const live = groups.filter((g) => g.srcs.some((s) => s.q.length));
+      if (!live.length) return out;
+      const g = pickWeighted(live);
+      out.push(pickWeighted(g.srcs.filter((s) => s.q.length)).q.shift());
+    }
+  }
+
+  // What the current view shows, in order: cards and plain notices.
+  function plan() {
+    const all = data.items.filter((it) => srcById[it.source] && modeOk(it));
+    const out = [];
+    const modeWord = prefs.mode === 'video' ? 'videos' : prefs.mode === 'picture' ? 'pictures' : 'things';
+
+    if (prefs.view === 'saved') {
+      const saved = [...prefs.saved].sort((a, b) => b.savedAt - a.savedAt).filter(modeOk);
+      if (!saved.length) out.push({ notice: ['Nothing saved yet.', 'Long-press anything (or right-click on a computer) and choose Save.'] });
+      for (const it of saved) out.push({ it });
+      return out;
+    }
+
+    if (prefs.view === 'mix') {
+      const mine = all.filter((it) => inPicks(srcById[it.source]));
+      const fresh = mix(mine.filter((it) => !seen[it.id]), (s) => SRC_WEIGHT[srcLevel(s)]);
+      for (const it of fresh) out.push({ it });
+      const outside = prefs.outside ? mix(all.filter((it) => canDiscover(srcById[it.source]) && !seen[it.id]), () => 1) : [];
+      if (outside.length) {
+        out.push({ notice: [fresh.length ? `That's every new ${modeWord.replace(/s$/, '')} from your picks.` : `Nothing new from your picks right now.`,
+          'Below: things from sources you haven\'t picked, so you keep finding new stuff. Each one is marked. Long-press one to add its source.'] });
+        for (const it of outside) out.push({ it, outside: true });
+      }
+      out.push({ end: true, seenItems: mine.filter((it) => seen[it.id]).sort((a, b) => b.date.localeCompare(a.date)) });
+      return out;
+    }
+
+    // One category: its picked sources newest first, then (marked) sources in it he hasn't picked.
+    const cat = prefs.view;
+    const mine = all.filter((it) => srcById[it.source].category === cat && srcLevel(srcById[it.source]) && srcLevel(srcById[it.source]) !== 'off');
+    let day = '';
+    for (const it of mine) {
+      const label = dayLabel(new Date(it.date));
+      if (label !== day) { out.push({ heading: label }); day = label; }
+      out.push({ it });
+    }
+    const outside = prefs.outside ? all.filter((it) => srcById[it.source].category === cat && srcLevel(srcById[it.source]) === null) : [];
+    if (outside.length) {
+      out.push({ notice: [`That's all from your ${catById[cat].name} picks.`, `Below: more ${catById[cat].name} from sources you haven't picked, marked. Long-press one to add its source.`] });
+      for (const it of outside) out.push({ it, outside: true });
+    }
+    out.push({ end: true, seenItems: [] });
+    return out;
+  }
+
+  // ---------- pictures: loaded when near the screen, shown only when loaded and big enough ----------
+  const nearby = 'IntersectionObserver' in window ? new IntersectionObserver((entries) => {
+    for (const e of entries) {
+      if (!e.isIntersecting) continue;
+      nearby.unobserve(e.target);
+      fillSlot(e.target);
+    }
+  }, { rootMargin: '900px 0px' }) : null;
+
+  function slot(src, cls) {
+    const s = el('div');
+    s.dataset.src = src;
+    s.dataset.cls = cls;
+    if (nearby) nearby.observe(s); else fillSlot(s);
+    return s;
+  }
+
+  function fillSlot(s) {
     const pic = new Image();
-    pic.className = 'thumb';
     pic.alt = '';
     pic.decoding = 'async';
     pic.referrerPolicy = 'no-referrer';
     pic.onload = () => {
       const w = pic.naturalWidth, h = pic.naturalHeight;
-      if (w >= 200 && h >= 80 && w / h <= 3.5) a.prepend(pic);
+      if (w >= 200 && h >= 80 && w / h <= 3.5) { pic.className = s.dataset.cls; s.replaceWith(pic); } else s.remove();
     };
-    pic.src = a.dataset.img;
+    pic.onerror = () => s.remove();
+    pic.src = s.dataset.src;
   }
-  const nearby = 'IntersectionObserver' in window ? new IntersectionObserver((entries) => {
+
+  // ---------- videos: play in place, one at a time, and stop when scrolled away ----------
+  let playing = null;
+  let hlsReady = null;
+  // hls.js wherever the browser can run it (Chrome, Android); the browser's own HLS only where it can't (iPhone Safari).
+  const canMse = () => !!(window.MediaSource || window.ManagedMediaSource);
+  function loadHls() {
+    if (!hlsReady) {
+      hlsReady = new Promise((ok, fail) => {
+        const s = document.createElement('script');
+        s.src = HLS_JS;
+        s.onload = () => ok(window.Hls);
+        s.onerror = fail;
+        document.head.append(s);
+      });
+    }
+    return hlsReady;
+  }
+  const offscreen = 'IntersectionObserver' in window ? new IntersectionObserver((entries) => {
+    for (const e of entries) if (!e.isIntersecting && playing?.box === e.target) stopPlaying();
+  }) : null;
+
+  function stopPlaying() {
+    if (!playing) return;
+    const p = playing;
+    playing = null;
+    offscreen?.unobserve(p.box);
+    p.stop();
+  }
+
+  function player(it) {
+    const v = it.video;
+    const box = el('div', 'player');
+    const ratio = v.tall ? 9 / 16 : v.ratio || 16 / 9;
+    box.style.aspectRatio = String(ratio);
+    if (ratio < 0.9) box.classList.add('tall');
+    const idle = [];
+    if (safeUrl(it.image)) {
+      const poster = el('img', 'poster');
+      poster.alt = '';
+      poster.loading = 'lazy';
+      poster.referrerPolicy = 'no-referrer';
+      poster.onerror = () => poster.remove();
+      poster.src = it.image;
+      idle.push(poster);
+    }
+    idle.push(el('span', 'play'));
+    box.append(...idle);
+    box.setAttribute('role', 'button');
+    box.setAttribute('aria-label', 'Play video');
+    box.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (playing?.box === box || box.dataset.pressed) return;
+      stopPlaying();
+      const cleanups = [];
+      if (v.kind === 'youtube' || v.kind === 'vimeo') {
+        const f = document.createElement('iframe');
+        f.src = v.kind === 'youtube'
+          ? `https://www.youtube-nocookie.com/embed/${encodeURIComponent(v.id)}?autoplay=1&playsinline=1&rel=0`
+          : `https://player.vimeo.com/video/${encodeURIComponent(v.id)}?autoplay=1`;
+        f.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
+        f.allowFullscreen = true;
+        f.title = it.title || 'Video';
+        box.replaceChildren(f);
+      } else {
+        const vid = document.createElement('video');
+        vid.controls = true;
+        vid.playsInline = true;
+        if (safeUrl(it.image)) vid.poster = it.image;
+        box.replaceChildren(vid);
+        cleanups.push(() => vid.pause());
+        const attach = () => {
+          if (v.kind === 'hls' && window.Hls?.isSupported()) {
+            const hls = new window.Hls();
+            hls.loadSource(v.src);
+            hls.attachMedia(vid);
+            cleanups.push(() => hls.destroy());
+          } else {
+            vid.src = v.src;
+          }
+          vid.play().catch(() => {});   // if the browser wants a second tap, the controls are there
+        };
+        if (v.kind === 'hls' && canMse() && !window.Hls) loadHls().then(attach, attach); else attach();
+      }
+      playing = { box, stop: () => { cleanups.forEach((f) => f()); box.replaceChildren(...idle); } };
+      offscreen?.observe(box);
+    });
+    return box;
+  }
+
+  // ---------- cards ----------
+  const seenWatch = 'IntersectionObserver' in window ? new IntersectionObserver((entries) => {
+    let changed = false;
     for (const e of entries) {
       if (!e.isIntersecting) continue;
-      nearby.unobserve(e.target);
-      addThumb(e.target);
+      seenWatch.unobserve(e.target);
+      if (!seen[e.target.dataset.id]) { seen[e.target.dataset.id] = today(); changed = true; }
     }
-  }, { rootMargin: '800px 0px' }) : null;
+    if (changed) { clearTimeout(seenWatch.t); seenWatch.t = setTimeout(() => write('myfeed.seen', seen), 800); }
+  }, { threshold: 0.6 }) : null;
 
-  function card(it) {
-    const art = el('article');
-    const a = el('a');
-    a.href = safeUrl(it.link) || '#';
-    a.target = '_blank';
-    a.rel = 'noopener';
-    const img = safeUrl(it.image);
-    if (img) {
-      a.dataset.img = img;
-      if (nearby) nearby.observe(a); else addThumb(a);
-    }
+  function card(it, outside) {
+    const s = srcById[it.source] || { name: it.sourceName || 'Saved', look: 'article' };
+    const look = s.look || 'article';
+    const art = el('article', `look-${look}`);
+    art.dataset.id = it.id;
+    const link = () => {
+      const a = el('a');
+      a.href = safeUrl(it.link) || '#';
+      a.target = '_blank';
+      a.rel = 'noopener';
+      return a;
+    };
+
     const body = el('div', 'body');
     const meta = el('div', 'meta');
-    const when = new Date(it.date);
-    meta.append(el('span', 'src', it.source), ` · ${when.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}`);
-    body.append(meta, el('div', 'title', it.title));
-    if (it.summary) body.append(el('p', 'sum', it.summary));
-    a.append(body);
-    art.append(a);
+    meta.append(el('span', 'src', s.name));
+    if (it.author) meta.append(` · ${it.author}`);
+    meta.append(` · ${ago(it.date)}`);
+    if (outside) meta.append(el('span', 'tag', 'not in your picks'));
+    if (isSaved(it.id)) meta.append(el('span', 'tag', 'saved'));
+    body.append(meta);
+    if (it.title) body.append(el('div', 'title', it.title));
+    if (it.text) body.append(el('p', 'text', it.text));
+    const words = link();
+    words.append(body);
+
+    // Articles: picture on top as a banner. Posts: words first, then the picture or video (as on X).
+    // Pictures and videos: the picture or video first, whole.
+    let media = null;
+    if (it.video) media = player(it);
+    else if (safeUrl(it.image) && look === 'article') words.prepend(slot(it.image, 'banner'));
+    else if (safeUrl(it.image)) {
+      media = link();
+      media.append(slot(it.image, 'pic'));
+    }
+    if (media && look === 'post') art.append(words, media);
+    else if (media) art.append(media, words);
+    else art.append(words);
+
+    if (seenWatch && !outside && prefs.view !== 'saved') seenWatch.observe(art);
     return art;
   }
 
-  function renderList() {
-    if (nearby) nearby.disconnect();
-    const items = data.items.filter((it) => topic === 'All' || it.topic === topic);
-    if (!items.length) {
-      list.replaceChildren(el('p', 'note', 'Nothing here yet.'));
-      return;
-    }
-    const out = [];
-    let day = '';
-    for (const it of items) {
-      const label = dayLabel(new Date(it.date));
-      if (label !== day) { out.push(el('h2', null, label)); day = label; }
-      out.push(card(it));
-    }
-    list.replaceChildren(...out);
+  // ---------- rendering, a page at a time as he scrolls ----------
+  let queue = [];
+  const more = 'IntersectionObserver' in window ? new IntersectionObserver((entries) => {
+    if (entries.some((e) => e.isIntersecting)) renderPage();
+  }, { rootMargin: '1200px 0px' }) : null;
+  let sentinel = el('div');
+
+  function render() {
+    stopPlaying();
+    nearby?.disconnect();
+    seenWatch?.disconnect();
+    more?.disconnect();
+    list.replaceChildren();
+    queue = plan();
+    renderPage();
+    renderChips();
+    renderModes();
   }
 
-  function renderSources() {
-    sourcesEl.replaceChildren(...data.sources.map((s) => {
-      const li = el('li');
-      const a = el('a', null, s.name);
-      a.href = safeUrl(s.url);
-      li.append(a, ` · ${s.topic} · `);
-      li.append(s.ok ? `${s.count} items`
-        : el('span', 'bad', `could not be reached on the last update${s.count ? `, showing its last ${s.count} items` : ''}`));
-      return li;
+  function renderPage() {
+    sentinel.remove();
+    let cards = 0;
+    while (queue.length && cards < PAGE) {
+      const entry = queue.shift();
+      if (entry.it) { list.append(card(entry.it, entry.outside)); cards++; }
+      else if (entry.heading) list.append(el('h2', null, entry.heading));
+      else if (entry.notice) list.append(notice(...entry.notice));
+      else if (entry.end) list.append(endBlock(entry.seenItems));
+    }
+    if (queue.length) {
+      list.append(sentinel);
+      if (more) more.observe(sentinel); else renderPage();
+    }
+  }
+
+  function notice(title, text) {
+    const n = el('div', 'notice');
+    n.append(el('b', null, title), text);
+    return n;
+  }
+
+  function endBlock(seenItems) {
+    const n = el('div', 'notice');
+    n.append(el('b', null, 'You\'re all caught up.'), `New things arrive every hour. Last update ${ago(data.builtAt)}.`);
+    const actions = el('div');
+    const refresh = el('button', 'btn', 'Refresh');
+    refresh.type = 'button';
+    refresh.onclick = load;
+    actions.append(refresh);
+    if (seenItems.length) {
+      const again = el('button', 'btn', `Show what you've seen (${seenItems.length})`);
+      again.type = 'button';
+      again.style.marginLeft = '8px';
+      again.onclick = () => {
+        n.after(el('h2', null, 'Already seen'));
+        queue = seenItems.map((it) => ({ it }));
+        again.remove();
+        renderPage();
+      };
+      actions.append(again);
+    }
+    n.append(actions);
+    return n;
+  }
+
+  function renderChips() {
+    const views = [['mix', 'My mix'], ...data.categories.map((c) => [c.id, c.name]), ['saved', 'Saved']];
+    if (!views.some(([id]) => id === prefs.view)) prefs.view = 'mix';
+    $('chips').replaceChildren(...views.map(([id, name]) => {
+      const b = el('button', 'chip', name);
+      b.type = 'button';
+      b.setAttribute('aria-pressed', String(id === prefs.view));
+      b.onclick = () => { prefs.view = id; savePrefs(); render(); window.scrollTo(0, 0); };
+      return b;
+    }));
+    $('chips').querySelector('[aria-pressed="true"]')?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+  }
+
+  function renderModes() {
+    $('modes').replaceChildren(...MODES.map(([id, name]) => {
+      const b = el('button', null, name);
+      b.type = 'button';
+      b.setAttribute('aria-pressed', String(id === prefs.mode));
+      b.onclick = () => { prefs.mode = id; savePrefs(); render(); window.scrollTo(0, 0); };
+      return b;
     }));
   }
 
+  // ---------- long press (or right-click): save, share, more, less ----------
+  const sheet = $('sheet');
+  const panel = sheet.querySelector('.sheet-panel');
+  let pressTimer = 0;
+  let pressAt = null;
+  let swallowClick = false;
+
+  function itemById(id) {
+    return data.items.find((it) => it.id === id) || prefs.saved.find((it) => it.id === id);
+  }
+
+  function openSheet(id) {
+    const it = itemById(id);
+    if (!it || !sheet.hidden) return;
+    const s = srcById[it.source];
+    const head = el('div', 'sheet-head');
+    head.append(el('div', 'meta', s ? s.name : 'Saved'), el('div', 'title', it.title || it.text || ''));
+    const action = (label, fn, quiet) => {
+      const b = el('button', quiet ? 'quiet' : null, label);
+      b.type = 'button';
+      b.onclick = () => { closeSheet(); fn(); };
+      return b;
+    };
+    const buttons = [
+      isSaved(id) ? action('Remove from saved', () => unsave(id)) : action('Save', () => save(it)),
+      action('Share', () => share(it)),
+    ];
+    if (s) {
+      const level = srcLevel(s);
+      if (!inPicks(s)) {
+        buttons.push(action(`Add ${s.name} to my picks`, () => setLevel(s, 'normal', `${s.name} is in your picks now.`)));
+        if (catDial(s.category) === 0) buttons.push(action(`Turn ${catById[s.category].name} back on`, () => setCat(s.category, 1)));
+        else buttons.push(action(`Don't show ${s.name} again`, () => setLevel(s, 'off', `You won't see ${s.name}.`)));
+      } else {
+        if (level !== 'more') buttons.push(action(`More from ${s.name}`, () => setLevel(s, SRC_LEVELS[SRC_LEVELS.indexOf(level) + 1], `You'll see more from ${s.name}.`)));
+        buttons.push(level === 'less'
+          ? action(`Stop showing ${s.name}`, () => setLevel(s, 'off', `You won't see ${s.name}.`))
+          : action(`Less from ${s.name}`, () => setLevel(s, SRC_LEVELS[SRC_LEVELS.indexOf(level) - 1], `You'll see less from ${s.name}.`)));
+      }
+    }
+    buttons.push(action('Cancel', () => {}, true));
+    panel.replaceChildren(head, ...buttons);
+    sheet.hidden = false;
+    navigator.vibrate?.(12);
+  }
+  function closeSheet() { sheet.hidden = true; }
+  sheet.querySelector('.sheet-back').onclick = closeSheet;
+
+  list.addEventListener('contextmenu', (e) => {
+    const art = e.target.closest('article[data-id]');
+    if (!art) return;
+    e.preventDefault();
+    clearTimeout(pressTimer);
+    openSheet(art.dataset.id);
+  });
+  list.addEventListener('pointerdown', (e) => {
+    const art = e.target.closest('article[data-id]');
+    if (!art || e.pointerType === 'mouse') return;
+    pressAt = { x: e.clientX, y: e.clientY };
+    clearTimeout(pressTimer);
+    pressTimer = setTimeout(() => {
+      swallowClick = true;
+      const box = e.target.closest('.player');
+      if (box) { box.dataset.pressed = '1'; setTimeout(() => delete box.dataset.pressed, 600); }
+      openSheet(art.dataset.id);
+    }, 550);
+  });
+  list.addEventListener('pointermove', (e) => {
+    if (pressAt && Math.hypot(e.clientX - pressAt.x, e.clientY - pressAt.y) > 10) clearTimeout(pressTimer);
+  });
+  for (const type of ['pointerup', 'pointercancel']) list.addEventListener(type, () => { clearTimeout(pressTimer); pressAt = null; });
+  window.addEventListener('scroll', () => clearTimeout(pressTimer), { passive: true });
+  list.addEventListener('click', (e) => {
+    if (!swallowClick) return;
+    swallowClick = false;
+    e.preventDefault();
+    e.stopPropagation();
+  }, true);
+
+  // ---------- actions ----------
+  let toastTimer = 0;
+  function toast(text, undo, label = 'Undo') {
+    const t = $('toast');
+    t.replaceChildren(el('span', null, text));
+    if (undo) {
+      const b = el('button', null, label);
+      b.type = 'button';
+      b.onclick = () => { t.hidden = true; undo(); };
+      t.append(b);
+    }
+    t.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { t.hidden = true; }, 3500);
+  }
+
+  function save(it) {
+    const s = srcById[it.source];
+    prefs.saved.push({ ...it, sourceName: s?.name, savedAt: Date.now() });
+    savePrefs();
+    markCard(it.id);
+    toast('Saved. Find it under Saved.', () => unsave(it.id, true));
+  }
+  function unsave(id, quiet) {
+    const before = prefs.saved;
+    prefs.saved = prefs.saved.filter((x) => x.id !== id);
+    savePrefs();
+    if (prefs.view === 'saved') render(); else markCard(id);
+    if (!quiet) toast('Removed from saved.', () => { prefs.saved = before; savePrefs(); render(); });
+  }
+  function markCard(id) {   // show or hide the "saved" tag without redrawing the feed
+    const art = list.querySelector(`article[data-id="${CSS.escape(id)}"]`);
+    if (!art) return;
+    const meta = art.querySelector('.meta');
+    const tag = [...meta.querySelectorAll('.tag')].find((t) => t.textContent === 'saved');
+    if (isSaved(id) && !tag) meta.append(el('span', 'tag', 'saved'));
+    if (!isSaved(id) && tag) tag.remove();
+  }
+
+  async function share(it) {
+    const url = safeUrl(it.link);
+    if (!url) return;
+    if (navigator.share) {
+      try { await navigator.share({ title: it.title || 'From my feed', url }); } catch {}
+      return;
+    }
+    try { await navigator.clipboard.writeText(url); toast('Link copied.'); } catch { window.prompt('Copy this link:', url); }
+  }
+
+  function setLevel(s, level, message) {
+    const before = prefs.src[s.id];
+    prefs.src[s.id] = level;
+    savePrefs();
+    toast(message, () => { if (before === undefined) delete prefs.src[s.id]; else prefs.src[s.id] = before; savePrefs(); render(); });
+    render();
+  }
+  function setCat(catId, dial) {
+    prefs.cat[catId] = dial;
+    savePrefs();
+    render();
+  }
+
+  // ---------- Tune ----------
+  function seg(options, current, onPick) {
+    const g = el('div', 'seg');
+    g.setAttribute('role', 'group');
+    for (const [value, label] of options) {
+      const b = el('button', null, label);
+      b.type = 'button';
+      b.setAttribute('aria-pressed', String(value === current));
+      b.onclick = () => {
+        onPick(value);
+        for (const x of g.children) x.setAttribute('aria-pressed', String(x === b));
+      };
+      g.append(b);
+    }
+    return g;
+  }
+
+  function row(name, about, control) {
+    const r = el('div', 'row');
+    const text = el('div');
+    text.append(el('div', 'name', name));
+    if (about) text.append(about);
+    r.append(text, control);
+    return r;
+  }
+
+  function renderTune() {
+    const body = $('tuneBody');
+    const parts = [];
+    parts.push(el('h2', null, 'How much of each'));
+    parts.push(el('p', null, 'Your mix gives each category a share by these dials. Nothing else decides what you see.'));
+    for (const c of data.categories) {
+      parts.push(row(c.name, el('div', 'about', c.about),
+        seg(CAT_LEVELS.map((label, i) => [i, label]), catDial(c.id), (v) => { prefs.cat[c.id] = v; savePrefs(); })));
+    }
+    parts.push(el('h2', null, 'When your picks run out'));
+    parts.push(row('Show things from sources you haven\'t picked',
+      el('div', 'about', 'They come after your picks, under a note, each marked "not in your picks".'),
+      seg([[true, 'On'], [false, 'Off']], prefs.outside, (v) => { prefs.outside = v; savePrefs(); })));
+
+    parts.push(el('h2', null, 'Sources'));
+    parts.push(el('p', null, 'Sources you haven\'t picked have no setting yet: they only show below your picks, marked. Off means never.'));
+    for (const c of data.categories) {
+      const srcs = data.sources.filter((s) => s.category === c.id)
+        .sort((a, b) => Number(!srcLevel(a)) - Number(!srcLevel(b)));
+      parts.push(el('h2', null, c.name));
+      for (const s of srcs) {
+        const about = el('div', 'about');
+        about.append(s.about || '');
+        if (!s.ok) about.append(' · ', el('span', 'bad', s.count ? 'not reachable on the last update, showing older posts' : 'not reachable right now, tried again every hour'));
+        else about.append(` · ${s.count} now`);
+        if (!srcLevel(s)) about.append(' · not picked yet');
+        parts.push(row(s.name, about,
+          seg(SRC_LEVELS.map((v) => [v, v[0].toUpperCase() + v.slice(1)]), srcLevel(s), (v) => { prefs.src[s.id] = v; savePrefs(); })));
+      }
+    }
+    parts.push(el('h2', null, 'This device'));
+    const note = el('p');
+    note.append('These settings, your saved posts and what you have seen are kept on this device. ',
+      Object.assign(el('a', null, 'Edit the source list'), { href: 'https://github.com/NoLimitNexus/my-feed/edit/main/sources.json' }),
+      ' to add a source that isn\'t here · ',
+      Object.assign(el('a', null, 'OPML file'), { href: 'feeds.opml', download: 'my-feed.opml' }));
+    parts.push(note);
+    const reset = el('button', 'btn', 'Start over (keeps saved posts)');
+    reset.type = 'button';
+    reset.onclick = () => {
+      if (!confirm('Put every dial and source back to how it started? Saved posts stay.')) return;
+      prefs = { ...prefs, cat: {}, src: {}, outside: true };
+      savePrefs();
+      renderTune();
+    };
+    parts.push(reset);
+    body.replaceChildren(...parts);
+  }
+
+  $('tuneBtn').onclick = () => {
+    if (!data) return;
+    stopPlaying();
+    renderTune();
+    $('tune').hidden = false;
+    document.body.style.overflow = 'hidden';
+  };
+  $('tuneDone').onclick = () => {
+    $('tune').hidden = true;
+    document.body.style.overflow = '';
+    render();
+    window.scrollTo(0, 0);
+  };
+
+  // ---------- loading ----------
+  async function fetchData() {
+    const res = await fetch(`data/items.json?t=${Date.now()}`, { cache: 'no-store' });
+    if (!res.ok) throw new Error(res.status);
+    const next = await res.json();
+    if (next.version !== 2) throw new Error('old data');
+    return next;
+  }
+
   async function load() {
-    refresh.textContent = 'Loading…';
     try {
-      const res = await fetch(`data/items.json?t=${Date.now()}`, { cache: 'no-store' });
-      if (!res.ok) throw new Error(res.status);
-      data = await res.json();
-      loadedAt = Date.now();
-      renderChips();
-      renderList();
-      renderSources();
-      refresh.textContent = `Updated ${ago(data.builtAt)}`;
+      use(await fetchData());
     } catch {
-      if (!data) list.replaceChildren(el('p', 'note', 'Could not load the feed. Tap Retry at the top.'));
-      refresh.textContent = 'Retry';
+      if (!data) {
+        const p = el('p', 'empty', 'Could not load the feed. ');
+        const retry = el('button', 'btn', 'Try again');
+        retry.type = 'button';
+        retry.onclick = load;
+        p.append(retry);
+        list.replaceChildren(p);
+      } else {
+        toast('Could not refresh. Check the connection.');
+      }
     }
   }
 
-  refresh.onclick = load;
-  // Coming back to the page (or the home-screen app) after a while picks up the newest items.
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible' && Date.now() - loadedAt > 10 * 60000) load();
+  function use(next) {
+    data = next;
+    loadedAt = Date.now();
+    catById = Object.fromEntries(data.categories.map((c) => [c.id, c]));
+    srcById = Object.fromEntries(data.sources.map((s) => [s.id, s]));
+    render();
+    if (canMse() && data.items.some((it) => it.video?.kind === 'hls')) loadHls().catch(() => {});
+  }
+
+  // Coming back to the page (or the home-screen app) after a while checks for newer things and
+  // offers them; the feed he is reading never reshuffles by itself.
+  document.addEventListener('visibilitychange', async () => {
+    if (document.visibilityState !== 'visible' || !data || Date.now() - loadedAt < 10 * 60000) return;
+    loadedAt = Date.now();
+    try {
+      const next = await fetchData();
+      if (next.builtAt !== data.builtAt) toast('New things are in.', () => { use(next); window.scrollTo(0, 0); }, 'Show');
+    } catch {}
   });
   load();
 })();

@@ -1,8 +1,70 @@
-[
-  { "name": "Three.js releases", "topic": "Three.js", "url": "https://github.com/mrdoob/three.js/releases.atom" },
-  { "name": "Three.js showcase", "topic": "Three.js", "url": "https://discourse.threejs.org/c/showcase/7.rss" },
-  { "name": "Three.js resources", "topic": "Three.js", "url": "https://discourse.threejs.org/c/resources/8.rss" },
-  { "name": "Trending on GitHub", "topic": "GitHub", "url": "https://mshibanami.github.io/GitHubTrendingRSS/daily/all.xml" },
-  { "name": "Trending JavaScript", "topic": "GitHub", "url": "https://mshibanami.github.io/GitHubTrendingRSS/daily/javascript.xml" },
-  { "name": "GitHub blog", "topic": "GitHub", "url": "https://github.blog/feed/" }
-]
+{
+  "categories": [
+    { "id": "threejs",  "name": "Three.js", "dial": 2, "about": "Releases, demos and what people are building with three.js" },
+    { "id": "github",   "name": "GitHub",   "dial": 2, "about": "Trending projects, new things people made, code news" },
+    { "id": "gamedev",  "name": "Game dev", "dial": 1, "about": "People making games, devlogs, graphics tricks" },
+    { "id": "learn",    "name": "Learn",    "dial": 2, "about": "Science, maths, how things work, history" },
+    { "id": "funny",    "name": "Funny",    "dial": 1, "about": "Comics, comedy, silly videos, cats" },
+    { "id": "discover", "name": "Discover", "dial": 1, "about": "Random wonderful things: art, places, makers, nature" }
+  ],
+  "sources": [
+    { "id": "threejs-releases", "category": "threejs", "on": true,  "look": "article", "name": "Three.js releases", "about": "Every new three.js version", "keepOld": true, "url": "https://github.com/mrdoob/three.js/releases.atom" },
+    { "id": "threejs-bsky",     "category": "threejs", "on": true,  "look": "post",    "name": "Three.js on Bluesky", "about": "People posting their three.js and WebGL work, lots of video", "bluesky": "at://did:plc:hkxm5wjluzmjfc6nsv4ag6dt/app.bsky.feed.generator/aaai2fdpawvce" },
+    { "id": "threejs-showcase", "category": "threejs", "on": true,  "look": "article", "name": "Three.js showcase", "about": "Projects people share on the three.js forum", "url": "https://discourse.threejs.org/c/showcase/7.rss" },
+    { "id": "threejs-resources","category": "threejs", "on": true,  "look": "article", "name": "Three.js resources", "about": "Tools, libraries and tutorials from the three.js forum", "url": "https://discourse.threejs.org/c/resources/8.rss" },
+    { "id": "threejs-reddit",   "category": "threejs", "on": true,  "look": "picture", "name": "r/threejs", "about": "The week's top posts on Reddit's three.js community", "url": "https://www.reddit.com/r/threejs/top/.rss?t=week", "summary": false },
+
+    { "id": "trending-all",     "category": "github", "on": true,  "look": "article", "name": "Trending on GitHub", "about": "Today's trending repositories, all languages", "url": "https://mshibanami.github.io/GitHubTrendingRSS/daily/all.xml" },
+    { "id": "trending-js",      "category": "github", "on": true,  "look": "article", "name": "Trending JavaScript", "about": "Today's trending JavaScript repositories", "url": "https://mshibanami.github.io/GitHubTrendingRSS/daily/javascript.xml" },
+    { "id": "github-bsky",      "category": "github", "on": true,  "look": "post",    "name": "GitHub on Bluesky", "about": "GitHub's own posts, many short videos", "bluesky": "github.com" },
+    { "id": "show-hn",          "category": "github", "on": true,  "look": "article", "name": "Show HN", "about": "New things people built, shown on Hacker News", "url": "https://hnrss.org/show?points=100", "summary": false },
+    { "id": "github-blog",      "category": "github", "on": true,  "look": "article", "name": "GitHub blog", "about": "News from GitHub", "url": "https://github.blog/feed/" },
+    { "id": "fireship",         "category": "github", "on": true,  "look": "video",   "name": "Fireship", "about": "Fast, funny videos on code and tech news", "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCsBjURrPoezykLs9EqgamOA" },
+    { "id": "hn-best",          "category": "github", "on": false, "look": "article", "name": "Hacker News best", "about": "The most upvoted stories on Hacker News", "url": "https://hnrss.org/best", "summary": false },
+    { "id": "coding-train",     "category": "github", "on": false, "look": "video",   "name": "The Coding Train", "about": "Creative coding videos, p5.js and JavaScript", "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCvjgXvBlbQiydffZU7m1_aw" },
+    { "id": "computerphile",    "category": "github", "on": false, "look": "video",   "name": "Computerphile", "about": "Computer science explained", "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UC9-y-6csu5WGm29I7JiwpnA" },
+
+    { "id": "gamedev-bsky",     "category": "gamedev", "on": true,  "look": "post",  "name": "Game dev on Bluesky", "about": "Game makers' posts, filtered for quality, lots of video", "bluesky": "at://did:plc:brwvwcp2x6oj3gq7odlfq5qf/app.bsky.feed.generator/aaacrwhjvhewi" },
+    { "id": "sebastian-lague",  "category": "gamedev", "on": true,  "look": "video", "name": "Sebastian Lague", "about": "Coding adventures: simulations, graphics, games", "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCmtyQOKKmrMVaKuRXz02jbQ" },
+    { "id": "acerola",          "category": "gamedev", "on": false, "look": "video", "name": "Acerola", "about": "Graphics programming and shaders, explained with humour", "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCQG40havu4kNpB4pxUDQhYQ" },
+    { "id": "brackeys",         "category": "gamedev", "on": false, "look": "video", "name": "Brackeys", "about": "Game dev tutorials", "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCYbK_tjZ2OrIZFBvU6CCMiA" },
+
+    { "id": "3b1b",             "category": "learn", "on": true,  "look": "video",   "name": "3Blue1Brown", "about": "Maths you can see", "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCYO_jab_esuFRV4b17AJtAw" },
+    { "id": "veritasium",       "category": "learn", "on": true,  "look": "video",   "name": "Veritasium", "about": "Science and engineering stories", "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCHnyfMqiRRG1u-2MsSQLbXA" },
+    { "id": "kurzgesagt",       "category": "learn", "on": true,  "look": "video",   "name": "Kurzgesagt", "about": "Big questions, animated", "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCsXVk37bltHxD1rDPwtNM8Q" },
+    { "id": "wiki-featured",    "category": "learn", "on": true,  "look": "article", "name": "Wikipedia featured article", "about": "Wikipedia's article of the day", "url": "https://en.wikipedia.org/w/api.php?action=featuredfeed&feed=featured&feedformat=atom" },
+    { "id": "wiki-potd",        "category": "learn", "on": true,  "look": "picture", "name": "Wikipedia picture of the day", "about": "One remarkable picture a day", "url": "https://en.wikipedia.org/w/api.php?action=featuredfeed&feed=potd&feedformat=atom" },
+    { "id": "wiki-onthisday",   "category": "learn", "on": false, "look": "article", "name": "On this day", "about": "What happened on this date in history", "url": "https://en.wikipedia.org/w/api.php?action=featuredfeed&feed=onthisday&feedformat=atom" },
+    { "id": "two-minute-papers","category": "learn", "on": false, "look": "video",   "name": "Two Minute Papers", "about": "New AI and graphics research, short", "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCbfYPyITQ-7l4upoX8nvctg" },
+    { "id": "cleo-abram",       "category": "learn", "on": false, "look": "video",   "name": "Cleo Abram", "about": "Hopeful videos about technology", "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UC415bOPUcGSamy543abLmRA" },
+    { "id": "nilered",          "category": "learn", "on": false, "look": "video",   "name": "NileRed", "about": "Chemistry experiments", "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCFhXFikryT4aFcLkLw2LBLA" },
+    { "id": "smarter-every-day","category": "learn", "on": false, "look": "video",   "name": "SmarterEveryDay", "about": "Curious engineering and slow motion", "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UC6107grRI4m0o2-emgoDnAA" },
+    { "id": "quanta",           "category": "learn", "on": false, "look": "article", "name": "Quanta Magazine", "about": "Maths, physics and biology research, explained", "url": "https://www.quantamagazine.org/feed/" },
+    { "id": "science-bsky",     "category": "learn", "on": false, "look": "post",    "name": "Science on Bluesky", "about": "Scientists and science writers", "bluesky": "at://did:plc:jfhpnnst6flqway4eaeqzj2a/app.bsky.feed.generator/for-science" },
+    { "id": "space-bsky",       "category": "learn", "on": false, "look": "post",    "name": "Space on Bluesky", "about": "Launches, astronomy and space news", "bluesky": "at://did:plc:b5nzrt7sqrcma2vki5r7ychg/app.bsky.feed.generator/aaabevvzfqk2w" },
+    { "id": "history-bsky",     "category": "learn", "on": false, "look": "post",    "name": "History on Bluesky", "about": "Historians and history posts", "bluesky": "at://did:plc:jjioi6tsi2v5oqz5bp2labs2/app.bsky.feed.generator/aaanwazu5xedq" },
+    { "id": "hackaday",         "category": "learn", "on": false, "look": "article", "name": "Hackaday", "about": "Hardware hacks and maker projects", "url": "https://hackaday.com/blog/feed/" },
+
+    { "id": "daily-dose",       "category": "funny", "on": true,  "look": "video",   "name": "Daily Dose Of Internet", "about": "The best viral clips, put together", "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCdC0An4ZPNr_YiFiYoVbwaw" },
+    { "id": "ryan-george",      "category": "funny", "on": true,  "look": "video",   "name": "Ryan George", "about": "Sketch comedy", "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCh9IfI45mmk59eDvSWtuuhQ" },
+    { "id": "xkcd",             "category": "funny", "on": true,  "look": "picture", "name": "xkcd", "about": "Nerdy comics", "url": "https://xkcd.com/atom.xml" },
+    { "id": "poorly-drawn",     "category": "funny", "on": true,  "look": "picture", "name": "Poorly Drawn Lines", "about": "Short, odd comics", "url": "https://poorlydrawnlines.com/feed/" },
+    { "id": "laughing-squid",   "category": "funny", "on": true,  "look": "article", "name": "Laughing Squid", "about": "Funny and quirky videos from around the web", "url": "https://laughingsquid.com/feed/" },
+    { "id": "the-onion",        "category": "funny", "on": false, "look": "article", "name": "The Onion", "about": "Satire news", "url": "https://theonion.com/rss" },
+    { "id": "smbc",             "category": "funny", "on": false, "look": "picture", "name": "SMBC", "about": "Science and philosophy comics", "url": "https://www.smbc-comics.com/comic/rss" },
+    { "id": "dropout",          "category": "funny", "on": false, "look": "video",   "name": "Dropout", "about": "Comedy shows and improv clips", "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCPDXXXJj9nax0fr0Wfc048g" },
+    { "id": "cats-bsky",        "category": "funny", "on": false, "look": "post",    "name": "Cats on Bluesky", "about": "Cats. They're cats.", "bluesky": "at://did:plc:jfhpnnst6flqway4eaeqzj2a/app.bsky.feed.generator/cats" },
+
+    { "id": "kottke",           "category": "discover", "on": true,  "look": "article", "name": "kottke.org", "about": "A daily pick of interesting things, often videos", "url": "https://feeds.kottke.org/main" },
+    { "id": "kid-should-see",   "category": "discover", "on": true,  "look": "article", "name": "The Kid Should See This", "about": "Wonderful short videos for curious people", "url": "https://thekidshouldseethis.com/feed" },
+    { "id": "atlas-obscura",    "category": "discover", "on": true,  "look": "article", "name": "Atlas Obscura", "about": "Strange and wonderful places", "url": "https://www.atlasobscura.com/feeds/latest" },
+    { "id": "colossal",         "category": "discover", "on": true,  "look": "picture", "name": "Colossal", "about": "Art, craft and design", "url": "https://www.thisiscolossal.com/feed/" },
+    { "id": "mark-rober",       "category": "discover", "on": true,  "look": "video",   "name": "Mark Rober", "about": "Big engineering builds and pranks", "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCY1kMZp36IQSyNx_9h4mpCg" },
+    { "id": "stuff-made-here",  "category": "discover", "on": false, "look": "video",   "name": "Stuff Made Here", "about": "Absurd, clever machines", "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCj1VqrHhDte54oLgPG4xpuQ" },
+    { "id": "simone-giertz",    "category": "discover", "on": false, "look": "video",   "name": "Simone Giertz", "about": "Inventions and builds", "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UC3KEoMzNz8eYnwBC34RaKCQ" },
+    { "id": "primitive-tech",   "category": "discover", "on": false, "look": "video",   "name": "Primitive Technology", "about": "Building from nothing in the bush, no talking", "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCAL3JXZSzSm8AlZyD3nQdBA" },
+    { "id": "nature-bsky",      "category": "discover", "on": false, "look": "post",    "name": "Nature photos on Bluesky", "about": "Wildlife and landscape photographers", "bluesky": "at://did:plc:cngpbn4gngkf7oenuzysanng/app.bsky.feed.generator/aaaeu3w7ci7aw" },
+    { "id": "art-bsky",         "category": "discover", "on": false, "look": "post",    "name": "Art on Bluesky", "about": "What's hot in art by human artists", "bluesky": "at://did:plc:odqmsar3ikz5ubokya4sempk/app.bsky.feed.generator/aaabfn4o34jdi" },
+    { "id": "public-domain",    "category": "discover", "on": false, "look": "picture", "name": "The Public Domain Review", "about": "Curious old pictures, books and films", "url": "https://publicdomainreview.org/rss.xml" }
+  ]
+}
